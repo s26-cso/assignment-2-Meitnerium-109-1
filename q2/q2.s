@@ -2,6 +2,7 @@
 
 .section .rodata
 fmt_space: .string "%d "
+fmt_num:   .string "%d"
 fmt_nl:    .string "\n"
 fmt_err:   .string "Usage: ./q2 <integers>\n"
 
@@ -135,8 +136,9 @@ push_stack:
 logic_end:
     # Output phase
     li s5, 0             # i = 0
+    addi t1, s0, -1      # t1 = n - 1 (index of the last element)
 out_loop:
-    bge s5, s0, out_end  # if i >= n, end output
+    bge s5, t1, out_last # if i >= n - 1, jump to printing the last element
     
     la a0, fmt_space     # format "%d "
     slli t0, s5, 2
@@ -146,6 +148,14 @@ out_loop:
     
     addi s5, s5, 1
     j out_loop
+
+out_last:
+    # Print the very last element without a trailing space
+    la a0, fmt_num       # format "%d"
+    slli t0, s5, 2
+    add t0, s2, t0
+    lw a1, 0(t0)         # result[n-1]
+    call printf
     
 out_end:
     la a0, fmt_nl
